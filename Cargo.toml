@@ -1,0 +1,18 @@
+[package]
+name = "mem-barrier"
+version = "0.1.0"
+authors = ["Martin Kröning <mkroening@posteo.net>"]
+edition = "2024"
+description = "Cross-architecture, no-std memory barriers."
+repository = "https://github.com/rust-osdev/mem-barrier"
+license = "MIT OR Apache-2.0"
+keywords = ["memory-barrier", "mb", "dsb", "fence", "mfence"]
+categories = ["concurrency", "embedded", "hardware-support", "no-std::no-alloc"]
+
+[features]
+default = ["stdarch"]
+nightly = []
+stdarch = []
+
+[dependencies]
+cfg-if = "1"

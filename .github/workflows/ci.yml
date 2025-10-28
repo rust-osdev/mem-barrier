@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  merge_group:
+
+env:
+  RUSTFLAGS: -Dwarnings
+  RUSTDOCFLAGS: -Dwarnings
+
+jobs:
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-unknown-none-softfloat,i586-unknown-linux-musl,riscv32imac-unknown-none-elf,riscv64gc-unknown-none-elf,x86_64-unknown-none
+          components: clippy
+      - uses: taiki-e/install-action@cargo-hack
+      - run: |
+          cargo hack clippy --feature-powerset --no-dev-deps --exclude-features nightly
+          cargo hack clippy --feature-powerset --no-dev-deps --exclude-features nightly --target aarch64-unknown-none-softfloat
+          cargo hack clippy --feature-powerset --no-dev-deps --exclude-features nightly --target i586-unknown-linux-musl
+          cargo hack clippy --feature-powerset --no-dev-deps --exclude-features nightly --target riscv32imac-unknown-none-elf
+          cargo hack clippy --feature-powerset --no-dev-deps --exclude-features nightly --target riscv64gc-unknown-none-elf
+          cargo hack clippy --feature-powerset --no-dev-deps --exclude-features nightly --target x86_64-unknown-none
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        toolchain: [stable, nightly]
+        include:
+          - toolchain: stable
+            args: --exclude-features nightly
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          targets: aarch64-unknown-none-softfloat,i586-unknown-linux-musl,riscv32imac-unknown-none-elf,riscv64gc-unknown-none-elf,x86_64-unknown-none
+      - uses: taiki-e/install-action@cargo-hack
+      - run: |
+          cargo hack build --feature-powerset --examples ${{ matrix.args }}
+          cargo hack build --feature-powerset --examples ${{ matrix.args }} --target aarch64-unknown-none-softfloat
+          cargo hack build --feature-powerset --examples ${{ matrix.args }} --target i586-unknown-linux-musl
+          cargo hack build --feature-powerset --examples ${{ matrix.args }} --target riscv32imac-unknown-none-elf
+          cargo hack build --feature-powerset --examples ${{ matrix.args }} --target riscv64gc-unknown-none-elf
+          cargo hack build --feature-powerset --examples ${{ matrix.args }} --target x86_64-unknown-none
+
+  doc:
+    name: Doc
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo doc --all-features
+
+  fmt:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt
+      - run: cargo fmt --all --check
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test --all-features
