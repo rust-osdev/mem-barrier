@@ -13,6 +13,3 @@ categories = ["concurrency", "embedded", "hardware-support", "no-std::no-alloc"]
 default = ["stdarch"]
 nightly = []
 stdarch = []
-
-[dependencies]
-cfg-if = "1"
