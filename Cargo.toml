@@ -1,6 +1,6 @@
 [package]
 name = "mem-barrier"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 description = "Cross-architecture, no-std memory barriers."
 repository = "https://github.com/rust-osdev/mem-barrier"
